@@ -1,0 +1,42 @@
+{
+    "gpu": {
+        "use": false,
+        "id": 0
+    },
+
+    "model": "ConvNet",
+    "dataset": "Simple_dataset",
+    "data_feat": "random",
+
+    "out_dir": "C:/Users/Surface/PycharmProjects/Music_Classification/out/genre_classification",
+    "data_dir": "C:/Users/Surface/PycharmProjects/Music_Classification/data",
+
+    "params": {
+        "seed": 42,
+        "epochs": 10,
+        "batch_size": 1,
+        "init_lr": 0.001,
+        "lr_reduce_factor": 0.5,
+        "lr_schedule_patience": 5,
+        "min_lr": 1e-5,
+        "weight_decay": 0.0,
+        "print_epoch_interval": 5,
+        "max_time": 12,
+        "cross_fold": false,
+        "fold": 0
+    },
+    "net_params": {
+        "L": 5,
+        "L_mlp" :  2,
+        "pool": "max",
+        "pool_ratio" : 2,
+        "hidden_dim": 32,
+        "residual": true,
+        "in_feat_dropout": 0.3,
+        "dropout": 0.3,
+        "batch_norm": true,
+        "kernel_size": 3
+
+
+    }
+}
