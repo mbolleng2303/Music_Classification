@@ -8,13 +8,13 @@
     "dataset": "Simple_dataset",
     "data_feat": "random",
 
-    "out_dir": "C:/Users/Surface/PycharmProjects/Music_Classification/out/genre_classification",
+    "out_dir": "C:/Users/Surface/PycharmProjects/Music_Classification/out/genre_classification/",
     "data_dir": "C:/Users/Surface/PycharmProjects/Music_Classification/data",
 
     "params": {
         "seed": 42,
-        "epochs": 10,
-        "batch_size": 1,
+        "epochs": 1000,
+        "batch_size": 10,
         "init_lr": 0.001,
         "lr_reduce_factor": 0.5,
         "lr_schedule_patience": 5,
@@ -36,7 +36,5 @@
         "dropout": 0.3,
         "batch_norm": true,
         "kernel_size": 3
-
-
     }
 }

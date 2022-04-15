@@ -6,7 +6,7 @@ import numpy as np
 
 
 def generate_random_data():
-    N_images = 100
+    N_images = 1000
     size = [128, 128]
     features = 3
     N_classes = 3

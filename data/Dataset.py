@@ -30,7 +30,7 @@ class Music2Features (torch.utils.data.Dataset):
                            delimiter=",", dtype=float), (-1, 3, 128, 128))
             self.nbr_sample = len(self.features[:, 0, 0, 0])
             self.nbr_feature = len(self.features[0, :, 0, 0])
-            self.size = (self.features.shape[3], self.features.shape[3])
+            self.size = (self.features.shape[2], self.features.shape[3])
             self.labels = np.reshape(
                 np.loadtxt(self.data_dir + '/label.csv',
                            delimiter=",", dtype=float), (-1))
@@ -96,7 +96,7 @@ def get_all_split_idx(dataset, data_dir, k_splits):
                 # Gets final 'train' and 'val'
                 train, val, _, __ = train_test_split(remain_set,
                                                      range(len(remain_set.feature_lists)),
-                                                     test_size=1/k_splits)
+                                                     test_size=0.25)
                 train, val = format_dataset(train, in_split=True), format_dataset(val, in_split=True)
                 test = format_dataset([dataset[index] for index in test_index], in_split=True)
                 # Extracting only idxs
