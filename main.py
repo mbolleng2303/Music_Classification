@@ -238,9 +238,11 @@ def main():
         USER CONTROLS
     """
 
+    config_path = "configs/config.json" # <-- change this
+
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', default="configs/config.json", help="Please give a config.json file with training/model/data/param details")
+    parser.add_argument('--config', default=config_path, help="Please give a config.json file with training/model/data/param details")
     parser.add_argument('--gpu_id', help="Please give a value for gpu id")
     parser.add_argument('--model', help="Please give a value for model name")
     parser.add_argument('--dataset', help="Please give a value for dataset name")
