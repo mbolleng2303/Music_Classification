@@ -23,12 +23,15 @@ def AUC (scores, targets):
 
 
 def accuracy(scores, targets):
-    idx = np.argmax(scores, axis=1)
+    try :
+        idx = np.argmax(scores.detach().numpy(), axis=1)
+    except:
+        idx = np.argmax(scores, axis=1)
     temp = np.zeros((scores.shape[0], scores.shape[1]))
     temp[:, idx] = 1
     pred = np.reshape(temp, (-1))
     lab = np.reshape(targets, (-1))
-    return f1_score(lab, pred)
+    return accuracy_score(lab, pred)
 
 
 '''def balanced_acc(scores, targets):
