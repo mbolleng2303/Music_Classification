@@ -12,7 +12,6 @@ from sklearn.metrics import roc_curve, auc, accuracy_score
 
 
 def AUC (scores, targets):
-
     pred = np.reshape(scores, (-1))
     lab = np.reshape(targets, (-1))
     '''idx = np.where(lab != 0)
@@ -24,15 +23,21 @@ def AUC (scores, targets):
 
 
 def accuracy(scores, targets):
-    pred = np.reshape(scores, (-1))
+    idx = np.argmax(scores, axis=1)
+    temp = np.zeros((scores.shape[0], scores.shape[1]))
+    temp[:, idx] = 1
+    pred = np.reshape(temp, (-1))
     lab = np.reshape(targets, (-1))
-    return accuracy_score(lab, pred)
+    return f1_score(lab, pred)
 
 
-def balanced_acc(scores, targets):
-    pred = np.reshape(scores, (-1))
+'''def balanced_acc(scores, targets):
+    idx = np.argmax(scores, axis=1)
+    temp = np.zeros((scores.shape[0], scores.shape[1]))
+    temp[:, idx] = 1
+    pred = np.reshape(temp, (-1))
     lab = np.reshape(targets, (-1))
-    return balanced_acc(lab, pred)
+    return balanced_acc(lab, pred)'''
 
 
 def MAE(scores, targets):

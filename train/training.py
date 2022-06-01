@@ -1,7 +1,7 @@
 from sklearn.metrics import roc_curve, auc, accuracy_score
 import numpy as np
 import torch
-from train.metrics import AUC as accuracy
+from train.metrics import accuracy as accuracy
 
 
 def train_epoch(model, optimizer, device, data_loader):

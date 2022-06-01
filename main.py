@@ -7,6 +7,9 @@ import time
 import random
 import glob
 import argparse, json
+
+from matplotlib import pyplot as plt
+
 from nets.LoadNet import load_model
 from data.Dataset import MusicDataset
 import torch
@@ -18,6 +21,22 @@ from torch.utils.data import DataLoader
 from train.training import train_epoch, evaluate_network
 from tensorboardX import SummaryWriter
 from tqdm import tqdm
+classes = ('T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
+        'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle Boot')
+
+# helper function to show an image
+# (used in the `plot_classes_preds` function below)
+def matplotlib_imshow(img, one_channel=False):
+    if one_channel:
+        img = img.mean(dim=0)
+    img = img / 2 + 0.5     # unnormalize
+    npimg = img.numpy()
+    if one_channel:
+        plt.imshow(npimg, cmap="Greys")
+    else:
+        plt.imshow(np.transpose(npimg, (1, 2, 0)))
+
+
 
 
 def gpu_setup(use_gpu, gpu_id):
@@ -146,6 +165,7 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
                     writer.add_scalar('test/_acc', epoch_test_acc, epoch)
                     writer.add_scalar('learning_rate', optimizer.param_groups[0]['lr'], epoch)
 
+
                     epoch_train_acc = 100. * epoch_train_acc
                     epoch_test_acc = 100. * epoch_test_acc
 
@@ -192,6 +212,24 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
             avg_train_acc.append(train_acc)
             avg_epochs.append(epoch)
 
+
+            plt.figure()
+            plt.plot(epoch_train_accs)
+            plt.plot(epoch_val_accs)
+            plt.legend(['train', 'val'])
+            plt.ylabel('acc')
+            plt.xlabel('epoch')
+            plt.title('Training summary fold '.format(split_number))
+            plt.savefig(log_dir +'/acc')
+            plt.figure()
+            plt.plot(epoch_train_losses)
+            plt.plot(epoch_val_losses)
+            plt.legend(['train', 'val'])
+            plt.ylabel('loss')
+            plt.xlabel('epoch')
+            plt.title('Training summary fold '.format(split_number))
+            plt.savefig(log_dir + '/loss')
+
             '''np.array(epoch_train_losses).tofile('train_loss',sep = ',')
             np.array(epoch_val_losses).tofile('val_loss',sep = ',')
             np.array(epoch_train_accs).tofile('train_acc',sep = ',')
@@ -215,7 +253,6 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
     print("""\n\n\nFINAL RESULTS\n\nTRAIN ACCURACY averaged: {:.4f} with s.d. {:.4f}""".format(
         np.mean(np.array(avg_train_acc)) * 100, np.std(avg_train_acc) * 100))
     print("\nAll splits Train Accuracies:\n", avg_train_acc)
-
     writer.close()
 
     """
@@ -273,6 +310,7 @@ def main():
     parser.add_argument('--max_time', help="Please give a value for max_time")
     parser.add_argument('--cross_fold', help="Please give a value for max_time")
     parser.add_argument('--fold', help="Please give a value for max_time")
+    parser.add_argument('--decrease_conv', help="Please give a value for max_time")
 
     args = parser.parse_args()
     with open(args.config) as f:
@@ -352,6 +390,8 @@ def main():
         net_params['kernel_size'] = int(args.kernel_size)
     if args.in_feat_dropout is not None:
         net_params['in_feat_dropout'] = float(args.in_feat_dropout)
+    if args.decrease_conv is not None:
+        net_params['decrease_conv'] = True if args.decrease_conv == 'True' else False
     if args.dropout is not None:
         net_params['dropout'] = float(args.dropout)
     if args.batch_norm is not None:

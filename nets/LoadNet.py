@@ -1,6 +1,6 @@
 
-from nets.ConvNet import ConvNet
-
+from nets.Conv2DNet import Conv2DNet
+from nets.Conv1DNet import Conv1DNet
 
 def convnet(net_params):
 
@@ -9,8 +9,12 @@ def convnet(net_params):
 
 def load_model(MODEL_NAME, net_params):
 
-    models = {
-            'ConvNet': convnet(net_params)
-        }
+    if MODEL_NAME =='Conv2DNet':
+        return Conv2DNet(net_params)
+    if MODEL_NAME == 'Conv1DNet':
+        return Conv1DNet(net_params)
+    else :
+        raise NotImplementedError
 
-    return ConvNet(net_params)
+
+
