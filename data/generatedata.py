@@ -14,8 +14,7 @@ for lab in classes:
     idx = np.where(label == lab)
     label_int[idx] = int(i)
     i+=1
-
-np.save('label', label_int)
+np.save('label', np.reshape(label_int(),(-1)))
 a = 2
 
 
