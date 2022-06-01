@@ -10,7 +10,7 @@ random.seed(42)
 
 
 class Music2Features (torch.utils.data.Dataset):
-    def __init__(self, name='Simple_data', data_dir="../data", data_feat="random"):
+    def __init__(self, name='img', data_dir="../data", data_feat="random"):
         self.name = name
         self.data_dir = data_dir
         self.data_feat = data_feat
@@ -22,7 +22,37 @@ class Music2Features (torch.utils.data.Dataset):
         t0 = time.time()
         print("[I] Preparing features...")
         if self.data_feat != 'random':
-            print('create new dataset')
+            print('creating new dataset')
+            if self.data_feat == 'mfcc':
+                self.features = np.reshape(np.load(self.data_dir +'/'+'mfcc_tagtraum_clean.npy'), (-1, 1, 300, 12))
+                self.nbr_sample = len(self.features[:, 0, 0, 0])
+                self.nbr_feature = len(self.features[0, :, 0, 0])
+                self.size = (self.features.shape[2], self.features.shape[3])
+                self.labels = np.load(self.data_dir +'/'+'label.npy')
+                self.nbr_classes = len(np.unique(self.labels))
+                assert self.nbr_sample == len(self.labels), 'Problem ! :('
+            elif self.data_feat == 'chroma':
+                self.features = np.reshape(np.load(self.data_dir +'/'+'chroma_tagtraum_clean.npy'), (-1, 1, 300, 12))
+                self.nbr_sample = len(self.features[:, 0, 0, 0])
+                self.nbr_feature = len(self.features[0, :, 0, 0])
+                self.size = (self.features.shape[2], self.features.shape[3])
+                self.labels = np.load(self.data_dir +'/'+'label.npy')
+                self.nbr_classes = len(np.unique(self.labels))
+                assert self.nbr_sample == len(self.labels), 'Problem ! :('
+            elif self.data_feat =='mfcc_chroma' :
+                self.mfcc = np.reshape(np.load(self.data_dir + '/' + 'mfcc_tagtraum_clean.npy'), (-1, 1, 300, 12))
+                self.chroma = np.reshape(np.load(self.data_dir + '/' + 'chroma_tagtraum_clean.npy'),
+                                         (-1, 1, 300, 12))
+
+                self.features = np.concatenate((self.mfcc, self.chroma), axis=1)
+                self.nbr_sample = len(self.features[:, 0, 0, 0])
+                self.nbr_feature = len(self.features[0, :, 0, 0])
+                self.size = (self.features.shape[2], self.features.shape[3])
+                self.labels = np.load(self.data_dir + '/' + 'label.npy')
+                self.nbr_classes = len(np.unique(self.labels))
+                assert self.nbr_sample == len(self.labels), 'Problem ! :('
+
+
         # TODO : prepare de features in the expected modality
         else:
             self.features = np.reshape(
@@ -52,7 +82,7 @@ class Music2Features (torch.utils.data.Dataset):
 
 
 class Idx:
-    def __init__(self,idx):
+    def __init__(self, idx):
         self.a = self
         self.index = idx
 
@@ -112,9 +142,18 @@ def get_all_split_idx(dataset, data_dir, k_splits):
                 f_test_w.append(idx_test)
 
             # reading idx from the files
+            val_np = np.zeros((5, len(idx_val)-1))
+            test_np = np.zeros((5, len(idx_val)-1))
+            for i in range(val_np.shape[0]):
+                for j in range(val_np.shape[1]):
+                    test_np[i, j] = f_test_w[i][j]
+                    val_np[i, j] = f_val_w[i][j]
+
+
+            f_val_w = val_np
+            f_test_w = test_np
             f_train_w = np.array(f_train_w)
-            f_val_w = np.array(f_val_w)
-            f_test_w = np.array(f_test_w)
+
             f_train_w.tofile(root_idx_dir + 'train_fold.csv', sep=',')
             f_val_w.tofile(root_idx_dir + 'val_fold.csv', sep=',')
             f_test_w.tofile(root_idx_dir + 'test_fold.csv', sep=',')
@@ -126,20 +165,20 @@ def get_all_split_idx(dataset, data_dir, k_splits):
 
 
 class MusicDataset(torch.utils.data.Dataset):
-    def __init__(self, name='Simple_data', data_dir="../data", data_feat=("random")):
+    def __init__(self, name='img', data_dir="../data", data_feat="random"):
         t0 = time.time()
         self.in_split = False
         self.name = name
         self.data_dir = data_dir
         self.data_feat = data_feat
         self.k_splits = 5
-        save_dir = self.data_dir + "/save"
+        save_dir = self.data_dir + "/save/" + self.name
         dataset = Music2Features(data_feat=self.data_feat, data_dir=self.data_dir, name=self.name)
         self.nbr_feature = dataset.nbr_feature
         self.nbr_classes = dataset.nbr_classes
         self.size = dataset.size
-        if os.path.exists(save_dir + '/' + self.name + '.pkl'):
-            with open(save_dir + '/' + name + '.pkl', "rb") as f:
+        if os.path.exists(save_dir + '/' + self.data_feat + '.pkl'):
+            with open(save_dir + '/' + self.data_feat + '.pkl', "rb") as f:
                 f = pickle.load(f)
                 self.train = f[0]
                 self.val = f[1]
@@ -158,12 +197,11 @@ class MusicDataset(torch.utils.data.Dataset):
             self._save(save_dir)
 
 
-
     def _save(self, save_dir):
         start = time.time()
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
-        with open(save_dir + '/' + self.name + '.pkl', 'wb') as f:
+        with open(save_dir + '/' + self.data_feat + '.pkl', 'wb') as f:
             pickle.dump([self.train, self.val, self.test], f)
         print(' data saved : Time (sec):', time.time() - start)
 

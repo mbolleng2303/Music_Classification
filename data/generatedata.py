@@ -1,23 +1,22 @@
-
-
-
 import numpy as np
 
-
-
-def generate_random_data():
-    N_images = 1000
-    size = [128, 128]
-    features = 3
-    N_classes = 3
-
-    img = np.random.rand(N_images, features, size[0], size[1])
-    label = np.random.randint(0, N_classes, N_images)
-
-    img.tofile('img.csv', sep=',')
-    label.tofile('label.csv', sep=',')
+mfcc = np.load('mfcc_tagtraum_clean.npy')
+track_ids_mfcc = np.load('track_ids_tagtraum.npy')
+chroma = np.load('chroma_tagtraum_clean.npy')
+label = np.load('genre_tagtraum.npy')
 
 
 
-generate_random_data()
+classes = np.unique(label)
+i = 0
+label_int = np.zeros(len(label))
+for lab in classes:
+    idx = np.where(label == lab)
+    label_int[idx] = int(i)
+    i+=1
+
+np.save('label', label_int)
+a = 2
+
+
 
