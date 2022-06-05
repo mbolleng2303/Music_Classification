@@ -93,61 +93,7 @@ def get_vertices(a):
                 # edges.append((j, i)) #for two dir
     return edges, feat
 
-class Data2Graph2(torch.utils.data.Dataset):
 
-
-    def __init__(self, name='img', data_dir="../data", data_feat="random"):
-        self.name = name
-        self.data_dir = data_dir
-        self.data_feat = data_feat
-        self.nbr_graphs = 30
-        self.nbr_node = 100
-        self.name = name
-        if self.data_feat =='chroma':
-            self.graph = np.load(self.data_dir+'/'+'graph_chroma.npy')
-        else:
-            self.graph = np.load(self.data_dir + '/' + 'graph_mfcc.npy')
-        self.label = np.load(self.data_dir+'/'+'graph_label.npy')
-        self.nbr_classes = 15
-        self.edge = np.load(self.data_dir+'/'+'graph_edges.npy')
-        self.graph_lists = []
-        self.label_lists = []
-        self.labels_lists = []
-        self.features_lists = []
-        self._prepare()
-
-    def _prepare(self):
-        t0 = time.time()
-        print("[I] Preparing graph :)...")
-        for i in tqdm(range (self.nbr_graphs)):
-            g = dgl.DGLGraph()
-            g.add_nodes(self.nbr_node)
-            g.ndata['feat'] = torch.tensor(self.graph[:,i,:].T).long()
-            edge = np.array(get_vertices(self.edge[i,:,:])[0])
-            edge_feat = np.array(get_vertices(self.edge[i,:,:])[1])
-            for src, dst in edge:
-                g.add_edges(src.item(), dst.item())
-            edge_feat_dim = 1
-            edge_feat=np.array(edge_feat)
-            g.edata['feat'] = torch.tensor((edge_feat)).long()
-            g = dgl.transform.remove_self_loop(g)
-            a = (self.label[0, i, :])
-            res = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            b= []
-            for i in a:
-                res[int(i)]=1
-                b.append(res)
-                res = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            self.label_lists.append(torch.tensor(b))
-            self.labels_lists.append(torch.tensor(b))
-            self.graph_lists.append(g)
-            self.features_lists.append(g)
-        print("[I] Finished preparation after {:.4f}s".format(time.time() - t0))
-    def __len__(self):
-        return self.nbr_graphs
-
-    def __getitem__(self, idx):
-        return self.features_lists[idx], self.labels_lists[idx], Idx(idx)
 class Data2Graph(torch.utils.data.Dataset):
 
 
@@ -345,12 +291,6 @@ class MusicDataset(torch.utils.data.Dataset):
                     self.nbr_feature = 300 * 24
                     self.size = (300, 24)
                 self.nbr_classes = dataset.nbr_classes
-            elif self.name =='graph2':
-                dataset = Data2Graph2(data_feat=self.data_feat, data_dir=self.data_dir, name=self.name)
-                self.nbr_feature = 300 * 12
-                self.size = (300, 12)
-
-
 
             print("[!] Dataset: ", self.name)
             # this function splits data into train/val/test and returns the indices
