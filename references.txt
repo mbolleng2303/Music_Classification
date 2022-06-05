@@ -1,0 +1,16 @@
+All the codes that we used to build this code is referenced below :
+
+
+https://github.com/musikalkemist/DeepLearningForAudioWithPython/tree/master/13-%20Implementing%20a%20neural%20network%20for%20music%20genre%20classification/slides
+
+https://github.com/tbertinmahieux/MSongsDB
+
+https://github.com/daniellengyel/music-cs182
+
+https://github.com/graphdeeplearning/benchmarking-gnns.git
+
+https://github.com/williamleif/GraphSAGE.git
+
+
+
+

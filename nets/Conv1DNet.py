@@ -55,28 +55,9 @@ class Conv1DNet(torch.nn.Module):
         return h_out
 
     def loss(self, pred, label):
-        """
-        # calculating label weights for weighted loss computation
-        V = label.size(0)
-        label_count = torch.bincount(label)
-        label_count = label_count[label_count.nonzero()].squeeze()
-        cluster_sizes = torch.zeros(self.n_classes).long().to(self.device)
-        cluster_sizes[torch.unique(label)] = label_count
-        weight = (V - cluster_sizes).float() / V
-        weight *= (cluster_sizes > 0).float()
-        """
-        # weighted cross-entropy for unbalanced classes
-        V = label.size(0)
-        label=label.long()
-        # label_count = torch.bincount(np.reshape(label[:,1],(-1)))
-        # label_count = label_count[label_count.nonzero()].squeeze()
-        '''cluster_sizes = torch.zeros(self.n_classes).long().to(self.device)
-        cluster_sizes[torch.unique(label)] = label_count
-        weight = (V - cluster_sizes).float() / V
-        weight *= (cluster_sizes > 0).float()'''
-        criterion = torch.nn.CrossEntropyLoss()
+        criterion = torch.nn.CrossEntropyLoss(weight=torch.tensor(
+            [0.07366666666666667, 0.05466666666666667, 0.07633333333333334, 0.016, 0.042333333333333334,
+             0.033666666666666664, 0.036333333333333336, 0.016, 0.08933333333333333, 0.026333333333333334,
+             0.07466666666666667, 0.041, 0.04733333333333333, 0.354, 0.018333333333333333]))
         loss = criterion(pred.float(), label.float())
-
         return loss
-
-

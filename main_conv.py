@@ -7,23 +7,17 @@ import time
 import random
 import glob
 import argparse, json
-
 from matplotlib import pyplot as plt
-
 from nets.LoadNet import load_model
 from data.Dataset import MusicDataset
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from train.training import train_epoch, evaluate_network
 from tensorboardX import SummaryWriter
 from tqdm import tqdm
-
-
-
 
 
 def gpu_setup(use_gpu, gpu_id):
@@ -133,18 +127,6 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
                     epoch_train_accs.append(epoch_train_acc)
                     epoch_val_accs.append(epoch_val_acc)
                     epoch_test_accs.append(epoch_test_acc)
-                    """
-                    try :
-                        if epoch_val_loss < epoch_val_losses[-2]:
-                            nbr_nochange = 0
-                            save = True
-                        else :
-                            nbr_nochange+=1
-                            save = True
-                    except IndexError:
-                        nbr_nochange = 0
-                        save = True
-                    """
                     writer.add_scalar('train/_loss', epoch_train_loss, epoch)
                     writer.add_scalar('val/_loss', epoch_val_loss, epoch)
                     writer.add_scalar('train/_acc', epoch_train_acc, epoch)
@@ -195,9 +177,6 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
             _, test_acc = evaluate_network(model, device, test_loader)
             _, train_acc = evaluate_network(model, device, train_loader)
             _, val_acc = evaluate_network(model, device, val_loader)
-            avg_test_acc.append(test_acc)
-            avg_train_acc.append(train_acc)
-            avg_epochs.append(epoch)
 
 
             plt.figure()
@@ -217,16 +196,14 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
             plt.title('Training summary fold '.format(split_number))
             plt.savefig(log_dir + '/loss')
 
-            '''np.array(epoch_train_losses).tofile('train_loss',sep = ',')
-            np.array(epoch_val_losses).tofile('val_loss',sep = ',')
-            np.array(epoch_train_accs).tofile('train_acc',sep = ',')
-            np.array(epoch_val_accs).tofile('val_acc',sep = ',')'''
-
-            print("Test Accuracy [LAST EPOCH]: {:.4f}".format(test_acc))
-            print("Train Accuracy [LAST EPOCH]: {:.4f}".format(train_acc))
-            print("Val Accuracy [LAST EPOCH]: {:.4f}".format(val_acc))
-
-
+            best_idx = np.argmax(epoch_val_accs + 1)
+            print("Best epoch : {}".format(best_idx + 1))
+            print("Test Accuracy [BEST]: {:.4f} ".format(epoch_test_accs[best_idx] * 100))
+            print("Train Accuracy [BEST]: {:.4f}".format(epoch_train_accs[best_idx] * 100))
+            print("Val Accuracy [BEST]: {:.4f}".format(epoch_val_accs[best_idx] * 100))
+            avg_test_acc.append(epoch_test_accs[best_idx])
+            avg_train_acc.append(epoch_train_accs[best_idx])
+            avg_epochs.append(epoch)
     except KeyboardInterrupt:
         print('-' * 89)
         print('Exiting from training early because of KeyboardInterrupt')
@@ -297,7 +274,7 @@ def main():
     parser.add_argument('--max_time', help="Please give a value for max_time")
     parser.add_argument('--cross_fold', help="Please give a value for max_time")
     parser.add_argument('--fold', help="Please give a value for max_time")
-    parser.add_argument('--decrease_conv', help="Please give a value for max_time")
+    parser.add_argument('--inc_channel', help="Please give a value for max_time")
 
     args = parser.parse_args()
     with open(args.config) as f:
@@ -377,8 +354,8 @@ def main():
         net_params['kernel_size'] = int(args.kernel_size)
     if args.in_feat_dropout is not None:
         net_params['in_feat_dropout'] = float(args.in_feat_dropout)
-    if args.decrease_conv is not None:
-        net_params['decrease_conv'] = True if args.decrease_conv == 'True' else False
+    if args.inc_channel is not None:
+        net_params['inc_channel'] = True if args.inc_channel == 'True' else False
     if args.dropout is not None:
         net_params['dropout'] = float(args.dropout)
     if args.batch_norm is not None:

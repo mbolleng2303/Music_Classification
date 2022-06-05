@@ -33,7 +33,6 @@ class ConvLayer2D(nn.Module):
             self.activation = activation
         else:
             self.activation = torch.nn.ReLU()
-
     def forward(self, h):
         h = self.dropout(h)
         h_in = h  # for residual connection
@@ -48,8 +47,6 @@ class ConvLayer2D(nn.Module):
             h = self.pool(h)
         if self.batch_norm:
             h = self.batchnorm_h(h)
-
-
         return h
 
     def __repr__(self):

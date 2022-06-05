@@ -47,10 +47,7 @@ class ConvLayer1D(nn.Module):
             h = self.pool(h)
         if self.batch_norm:
             h = self.batchnorm_h(h)
-
-
         return h
-
     def __repr__(self):
         return '{}(in_channels={}, out_channels={}, kernel_size={}, residual={}, pool ={})'.format(self.__class__.__name__,
                                                                                         self.in_channels,

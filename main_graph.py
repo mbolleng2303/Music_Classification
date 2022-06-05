@@ -64,22 +64,16 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
     avg_test_acc = []
     avg_train_acc = []
     avg_epochs = []
-
     t0 = time.time()
     per_epoch_time = []
-
     DATASET_NAME = dataset.name
-
     root_log_dir, root_ckpt_dir, write_file_name, write_config_file = dirs
     device = net_params['device']
-
     # Write the network and optimization hyper-parameters in folder config/
     with open(write_config_file + '.txt', 'w') as f:
         f.write("""Dataset: {},\nModel: {}\n\nparams={}\n\nnet_params={}\n\n\nTotal Parameters: {}\n\n""".format(
             DATASET_NAME, MODEL_NAME, params, net_params, net_params['total_param']))
-
     # At any point you can hit Ctrl + C to break out of training early.
-
     try:
         if params['cross_fold']:
             split = [i for i in range(5)]
@@ -90,7 +84,6 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
             t0_split = time.time()
             log_dir = os.path.join(root_log_dir, "RUN_" + str(split_number))
             writer = SummaryWriter(log_dir=log_dir)
-
             # setting seeds
             random.seed(params['seed'])
             np.random.seed(params['seed'])
@@ -159,6 +152,7 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
 
                     epoch_train_acc = 100. * epoch_train_acc
                     epoch_test_acc = 100. * epoch_test_acc
+                    epoch_val_acc = 100. * epoch_val_acc
 
                     t.set_postfix(time=time.time() - start, lr=optimizer.param_groups[0]['lr'],
                                   train_loss=epoch_train_loss, val_loss=epoch_val_loss,
@@ -199,11 +193,9 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
             _, test_acc = evaluate_network(model, device, test_loader,epoch)
             _, train_acc = evaluate_network(model, device, train_loader,epoch)
             _, val_acc = evaluate_network(model, device, val_loader,epoch)
-            avg_test_acc.append(test_acc)
-            avg_train_acc.append(train_acc)
+
+
             avg_epochs.append(epoch)
-
-
             plt.figure()
             plt.plot(epoch_train_accs)
             plt.plot(epoch_val_accs)
@@ -225,11 +217,13 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
             np.array(epoch_val_losses).tofile('val_loss',sep = ',')
             np.array(epoch_train_accs).tofile('train_acc',sep = ',')
             np.array(epoch_val_accs).tofile('val_acc',sep = ',')'''
-
-            print("Test Accuracy [LAST EPOCH]: {:.4f}".format(test_acc))
-            print("Train Accuracy [LAST EPOCH]: {:.4f}".format(train_acc))
-            print("Val Accuracy [LAST EPOCH]: {:.4f}".format(val_acc))
-
+            best_idx = np.argmax(epoch_val_accs)
+            print("Best epoch : {}".format(best_idx+1))
+            print("Test Accuracy [BEST]: {:.4f} ".format(epoch_test_accs[best_idx]*100))
+            print("Train Accuracy [BEST]: {:.4f}".format(epoch_train_accs[best_idx]*100))
+            print("Val Accuracy [BEST]: {:.4f}".format(epoch_val_accs[best_idx]*100))
+            avg_test_acc.append(epoch_test_accs[best_idx])
+            avg_train_acc.append(epoch_train_accs[best_idx])
 
     except KeyboardInterrupt:
         print('-' * 89)

@@ -3,7 +3,6 @@ import numpy as np
 import torch
 from train.metrics import accuracy as accuracy
 
-
 def train_epoch(model, optimizer, device, data_loader):
     model.train()
     epoch_loss = 0

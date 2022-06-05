@@ -3,25 +3,25 @@
         "use": false,
         "id": 0
     },
-    "model": "Con2DNet",
+    "model": "Conv2DNet",
     "dataset": "img",
-    "data_feat": "mfcc",
+    "data_feat": "mfcc_chroma",
 
     "out_dir": "C:/Users/maxim/PycharmProjects/Music_Classification/out/genre_classification/",
     "data_dir": "C:/Users/maxim/PycharmProjects/Music_Classification/data",
 
     "params": {
         "seed": 42,
-        "epochs": 1000,
-        "batch_size": 10,
-        "init_lr": 0.001,
+        "epochs": 1,
+        "batch_size": 100,
+        "init_lr": 5e-4,
         "lr_reduce_factor": 0.5,
-        "lr_schedule_patience": 10,
-        "min_lr": 1e-5,
+        "lr_schedule_patience": 5,
+        "min_lr": 1e-6,
         "weight_decay": 0.0,
         "print_epoch_interval": 5,
         "max_time": 12,
-        "cross_fold": false,
+        "cross_fold": true,
         "fold": 0
     },
     "net_params": {
@@ -31,10 +31,10 @@
         "pool_ratio" : 2,
         "hidden_dim": 16,
         "residual": false,
-        "in_feat_dropout": 0,
-        "dropout": 0,
+        "in_feat_dropout": 0.0,
+        "dropout": 0.0,
         "batch_norm": true,
         "kernel_size": 3,
-        "decrease_conv" : false
+        "inc_channel" : false
     }
 }
